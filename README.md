@@ -1,102 +1,85 @@
-# Twitter API v2 sample code [![v2](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.twitter.com/en/docs/twitter-api)
+# X API v2 Sample Code
 
-Sample code for the Twitter API v2 endpoints.
-Individual API features have folders where you can find examples of usage in several coding languages (Java, Node.js, Python, R, and Ruby).
+[![X API v2](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.x.com/en/docs/twitter-api)
 
-* [Twitter API Documentation](https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api)
+Working code samples for the **X API v2** in Python, JavaScript, Ruby, Java, and R.
 
-## Prerequisites
+## 📁 Repository Structure
 
-* Twitter API Essential Access ([sign up here](https://t.co/signup))
-* A Project and an App created [in the dashboard](https://developer.twitter.com/en/portal/dashboard)
-
-## Using the code samples
-
-In order to run the samples in this repository you will need to set up some environment variables. You can find your credentials and bearer token in the App inside of your Project in the [dashboard of the developer portal](https://developer.twitter.com/en/portal/projects-and-apps).
-
-For OAuth 1.0a samples, you will need to export your consumer key and secret in your terminal. Be sure to replace `<your_consumer_key>` and `<your_consumer_secret>` with your own credentials without the `< >`.
-
-```bash
-export CONSUMER_KEY='<your_consumer_key>'
-export CONSUMER_SECRET='<your_consumer_secret>'
+```
+├── python/           # 108 Python examples
+├── javascript/       # 70 JavaScript examples  
+├── ruby/             # 58 Ruby examples
+├── java/             # 19 Java examples
+├── r/                # 5 R examples
+├── llms.txt          # LLM-friendly documentation
+└── api-index.json    # Machine-readable endpoint catalog
 ```
 
-For samples which use bearer token authentication, you will need to export the bearer token. Be sure to replace  `<your_bearer_token>` with your own bearer token without the `< >`.
+## 🚀 Quick Start
+
+### 1. Get API Credentials
+
+Sign up at the [X Developer Portal](https://developer.x.com/en/portal/dashboard).
+
+### 2. Set Environment Variables
 
 ```bash
-export BEARER_TOKEN='<your_bearer_token>'
+export BEARER_TOKEN='your_bearer_token'
+export CONSUMER_KEY='your_consumer_key'
+export CONSUMER_SECRET='your_consumer_secret'
 ```
 
-## Language-specific requirements
-
-### Java environment set up
-
-If you use Homebrew, you can install a Java runtime using:
+### 3. Run an Example
 
 ```bash
-brew cask install java
+# Python
+cd python && pip install -r requirements.txt
+python posts/recent_search.py
+
+# JavaScript  
+cd javascript && npm install
+node posts/recent_search.js
+
+# Ruby
+cd ruby && bundle install
+ruby posts/recent_search.rb
 ```
 
-You will also need to download the relevant JAR files referenced in the individual samples in order to build and run the code. If you use an IDE, it may be able to do this automatically for you.
+## 📚 Examples by Category
 
-### JavaScript (Node.js) environment set up
+| Category | Python | JavaScript | Ruby | Java | R |
+|----------|--------|------------|------|------|---|
+| Posts (search, create, delete, likes, retweets) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Users (lookup, followers, blocks, mutes) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Timelines (user, mentions, home) | ✅ | ✅ | ✅ | ✅ | |
+| Streams (filtered, sampled) | ✅ | ✅ | ✅ | ✅ | |
+| Lists (lookup, manage, members) | ✅ | ✅ | ✅ | | |
+| Spaces (lookup, search) | ✅ | ✅ | ✅ | ✅ | |
+| Bookmarks | ✅ | ✅ | ✅ | | |
+| Direct Messages | ✅ | | | | |
+| Media Upload | ✅ | | | | |
+| Compliance | ✅ | ✅ | | ✅ | |
+| Usage | ✅ | ✅ | | ✅ | |
 
-You will need to have Node.js installed to run this code. All Node.js examples use `needle` as the HTTP client, which needs to be npm installed. For OAuth with user context requests, you'll need to install the `got` and `oauth-1.0a` packages.
+## 🔐 Authentication
 
-```bash
-npm install needle
-npm install got
-npm install oauth-1.0a
-```
+| Type | Use Case | Env Vars |
+|------|----------|----------|
+| Bearer Token | Read-only (search, lookup) | `BEARER_TOKEN` |
+| OAuth 1.0a | User actions (post, like) | `CONSUMER_KEY`, `CONSUMER_SECRET` |
+| OAuth 2.0 PKCE | Bookmarks, newer endpoints | OAuth flow |
 
-### Python environment set up
+## 🤖 For LLMs
 
-You will need to have Python 3 installed to run this code. The Python samples use `requests==2.24.0` which uses `requests-oauthlib==1.3.0`.
+- **`llms.txt`** - Context file for AI assistants
+- **`api-index.json`** - Machine-readable endpoint catalog
 
-(Optionally) It is common and recommended not to install required package globally, but locally under project subfolder using `venv`:
+## 🔗 Resources
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+- [X API Documentation](https://developer.x.com/en/docs/twitter-api)
+- [Developer Portal](https://developer.x.com/en/portal/dashboard)
 
-You can install these packages as follows:
+## 📄 License
 
-```bash
-pip install requests
-pip install requests-oauthlib
-```
-
-### Ruby environment set up
-
-You will need to have Ruby (recommended: >= 2.0.0) installed in order to run the code. The Ruby examples use `typhoeus` as the HTTP client, which needs to be gem installed. For OAuth with user context requests, you'll also need to install the `oauth` gem (see below).
-
-```bash
-gem install typhoeus
-gem install oauth
-```
-
-## Additional resources
-
-We maintain a [Postman](https://getpostman.com) Collection which you can use for exercising individual API endpoints.
-
-* [Using Postman with the Twitter API](https://developer.twitter.com/en/docs/tutorials/postman-getting-started)
-* [Twitter API v2 on the Postman website](https://t.co/twitter-api-postman)
-
-## Support
-
-* For general questions related to the API and features, please use the v2 section of our [developer community forums](https://twittercommunity.com/c/twitter-api/twitter-api-v2/65).
-
-* If there's an bug or issue with the sample code itself, please create a [new issue](https://github.com/twitterdev/Twitter-API-v2-sample-code/issues) here on GitHub.
-
-## Contributing
-
-We welcome pull requests that add meaningful additions to these code samples, particularly for languages that are not yet represented here.
-
-We feel that a welcoming community is important and we ask that you follow Twitter's [Open Source Code of Conduct](https://github.com/twitter/.github/blob/main/code-of-conduct.md) in all interactions with the community.
-
-## License
-
-Copyright 2021 Twitter, Inc.
-
-Licensed under the Apache License, Version 2.0: https://www.apache.org/licenses/LICENSE-2.0
+Apache 2.0
