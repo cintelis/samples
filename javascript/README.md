@@ -12,9 +12,7 @@ node --version
 
 ### 2. Install dependencies
 
-```bash
-npm install
-```
+No package.json is required. Examples use Node.js built-in modules or standard libraries.
 
 ### 3. Set environment variables
 
@@ -32,38 +30,96 @@ export CONSUMER_SECRET='your_consumer_secret'
 ## Examples by Category
 
 ### Posts
-| File | Description | Auth |
-|------|-------------|------|
-| `posts/create_post.js` | Create a new post | OAuth 1.0a |
-| `posts/delete_post.js` | Delete a post | OAuth 1.0a |
-| `posts/lookup.js` | Look up posts by ID | Bearer |
-| `posts/search_recent.js` | Search recent posts (7 days) | Bearer |
+- `posts/create_post.js` - Create a new post
+- `posts/delete_post.js` - Delete a post
+- `posts/get_liking_users.js` - Get users who liked a post
+- `posts/get_post_counts_all.js` - Get post counts (full archive)
+- `posts/get_post_counts_recent.js` - Get post counts (recent)
+- `posts/get_posts_by_ids.js` - Look up posts by ID (bearer token)
+- `posts/get_posts_by_ids_user_context.js` - Look up posts by ID (user context)
+- `posts/get_quoted_posts.js` - Get posts that quote a post
+- `posts/get_reposted_by.js` - Get users who reposted a post
+- `posts/search_all.js` - Full archive search
+- `posts/search_recent.js` - Recent search (last 7 days)
 
 ### Users
-| File | Description | Auth |
-|------|-------------|------|
-| `users/lookup.js` | Look up users by username | Bearer |
-| `users/followers.js` | Get user's followers | Bearer |
+- `users/get_users_by_usernames.js` - Look up users by username (bearer token)
+- `users/get_users_by_usernames_user_context.js` - Look up users by username (user context)
+- `users/get_users_me.js` - Get authenticated user (me)
+
+#### User Actions - Block
+- `users/block/get_blocking.js` - Get users blocked by a user
+
+#### User Actions - Bookmark
+- `users/bookmark/create_bookmark.js` - Create a bookmark
+- `users/bookmark/delete_bookmark.js` - Delete a bookmark
+- `users/bookmark/get_bookmarks.js` - Get user's bookmarks
+
+#### User Actions - Follow
+- `users/follow/get_followers.js` - Get user's followers
+- `users/follow/get_followers_paginated.js` - Get user's followers (paginated)
+- `users/follow/get_following_paginated.js` - Get users a user is following (paginated)
+
+#### User Actions - Like
+- `users/like/get_liked_posts.js` - Get posts liked by a user
+- `users/like/like_post.js` - Like a post
+- `users/like/unlike_post.js` - Unlike a post
+
+#### User Actions - Lists
+- `users/lists/follow_list.js` - Follow a list
+- `users/lists/get_followed_lists.js` - Get lists followed by a user
+- `users/lists/get_list_memberships.js` - Get list memberships
+- `users/lists/get_owned_lists.js` - Get lists owned by a user
+- `users/lists/pin_list.js` - Pin a list
+- `users/lists/unfollow_list.js` - Unfollow a list
+- `users/lists/unpin_list.js` - Unpin a list
+
+#### User Actions - Mute
+- `users/mute/get_muting.js` - Get users muted by a user
+- `users/mute/mute_user.js` - Mute a user
+- `users/mute/unmute_user.js` - Unmute a user
+
+#### User Actions - Repost
+- `users/repost/repost_post.js` - Repost a post
+- `users/repost/unrepost_post.js` - Undo a repost
+
+#### User Actions - Timeline
+- `users/timeline/get_home_timeline.js` - Get home timeline
+- `users/timeline/get_mentions.js` - Get user mentions timeline
+- `users/timeline/get_posts.js` - Get user's posts timeline
+- `users/timeline/get_posts_paginated.js` - Get user's posts timeline (paginated)
 
 ### Timelines
-| File | Description | Auth |
-|------|-------------|------|
-| `timelines/user_posts.js` | User's posts timeline | Bearer |
+- See `users/timeline/` directory for timeline examples
 
 ### Streams
-| File | Description | Auth |
-|------|-------------|------|
-| `streams/filtered_stream.js` | Filtered stream with rules | Bearer |
+- `streams/stream_posts_filtered.js` - Filtered stream with rules
+- `streams/stream_posts_sample.js` - Sampled stream
 
 ### Lists
-| File | Description | Auth |
-|------|-------------|------|
-| `lists/lookup.js` | Look up a list | Bearer |
+- `lists/add_member.js` - Add member to a list
+- `lists/create_list.js` - Create a new list
+- `lists/delete_list.js` - Delete a list
+- `lists/get_list_by_id.js` - Get list by ID
+- `lists/get_list_followers.js` - Get list followers
+- `lists/get_list_members.js` - Get list members
+- `lists/get_list_posts.js` - Get posts from a list
+- `lists/remove_member.js` - Remove member from a list
+- `lists/update_list.js` - Update a list
 
 ### Spaces
-| File | Description | Auth |
-|------|-------------|------|
-| `spaces/lookup.js` | Look up Spaces | Bearer |
+- `spaces/get_spaces_by_ids.js` - Look up Spaces by ID
+- `spaces/search_spaces.js` - Search for Spaces
+
+### Compliance
+- `compliance/create_jobs.js` - Create compliance job
+- `compliance/download_results.js` - Download compliance results
+- `compliance/get_jobs_by_id.js` - Get compliance job by ID
+- `compliance/get_jobs.js` - Get compliance jobs
+- `compliance/upload_ids.js` - Upload IDs for compliance
+
+### Usage
+- `usage/get_usage.js` - Get API usage information
 
 ## Running Examples
 

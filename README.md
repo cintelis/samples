@@ -7,8 +7,8 @@ Working code samples for the **X API v2** in Python, JavaScript, Ruby, Java, and
 ## 📁 Repository Structure
 
 ```
-├── python/           # 108 Python examples
-├── javascript/       # 70 JavaScript examples  
+├── python/           # 65 Python examples
+├── javascript/       # 59 JavaScript examples  
 ├── ruby/             # 58 Ruby examples
 ├── java/             # 19 Java examples
 ├── r/                # 5 R examples
@@ -35,31 +35,36 @@ export CONSUMER_SECRET='your_consumer_secret'
 ```bash
 # Python
 cd python && pip install -r requirements.txt
-python posts/recent_search.py
+python posts/search_recent.py
 
 # JavaScript  
-cd javascript && npm install
-node posts/recent_search.js
+cd javascript
+node posts/search_recent.js
 
 # Ruby
 cd ruby && bundle install
-ruby posts/recent_search.rb
+ruby posts/search_recent.rb
+
+# Java
+cd java
+javac -cp ".:lib/*" posts/RecentSearchDemo.java
+java -cp ".:lib/*" RecentSearchDemo
 ```
 
 ## 📚 Examples by Category
 
 | Category | Python | JavaScript | Ruby | Java | R |
 |----------|--------|------------|------|------|---|
-| Posts (search, create, delete, likes, retweets) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Users (lookup, followers, blocks, mutes) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Posts (search, create, delete, likes, reposts) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Users (lookup, followers, following, blocks, mutes) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Timelines (user, mentions, home) | ✅ | ✅ | ✅ | ✅ | |
 | Streams (filtered, sampled) | ✅ | ✅ | ✅ | ✅ | |
-| Lists (lookup, manage, members) | ✅ | ✅ | ✅ | | |
+| Lists (lookup, manage, members, follow) | ✅ | ✅ | ✅ | | |
 | Spaces (lookup, search) | ✅ | ✅ | ✅ | ✅ | |
 | Bookmarks | ✅ | ✅ | ✅ | | |
 | Direct Messages | ✅ | | | | |
 | Media Upload | ✅ | | | | |
-| Compliance | ✅ | ✅ | | ✅ | |
+| Compliance | ✅ | ✅ | | | |
 | Usage | ✅ | ✅ | | ✅ | |
 
 ## 🔐 Authentication

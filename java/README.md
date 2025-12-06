@@ -39,23 +39,56 @@ export BEARER_TOKEN='your_bearer_token'
 ## Examples by Category
 
 ### Posts
-| File | Description | Auth |
-|------|-------------|------|
-| `posts/SearchRecent.java` | Search recent posts (7 days) | Bearer |
+- `posts/FullArchiveSearchDemo.java` - Full archive search demo
+- `posts/FullArchiveTweetCountsDemo.java` - Full archive tweet counts demo
+- `posts/QuoteTweetsDemo.java` - Get posts that quote a post
+- `posts/RecentSearchDemo.java` - Recent search demo (last 7 days)
+- `posts/RecentTweetCountsDemo.java` - Recent tweet counts demo
+- `posts/SearchRecent.java` - Recent search (last 7 days)
+- `posts/TweetsDemo.java` - Look up posts by ID
 
 ### Users
-| File | Description | Auth |
-|------|-------------|------|
-| `users/Lookup.java` | Look up users by username | Bearer |
+- `users/FollowersLookupDemo.java` - Get user's followers
+- `users/FollowingLookupDemo.java` - Get users a user is following
+- `users/Lookup.java` - Look up users by username
+- `users/UsersDemo.java` - Users lookup demo
+
+### Timelines
+- `timelines/reverse-chron-home-timeline-java-sdk.java` - Get home timeline (reverse chronological)
+- `timelines/UserMentionsDemo.java` - Get user mentions timeline
+- `timelines/UserTweetsDemo.java` - Get user's posts timeline
+
+### Streams
+- `streams/FilteredStreamDemo.java` - Filtered stream with rules
+- `streams/SampledStream.java` - Sampled stream
+
+### Spaces
+- `spaces/SearchSpacesDemo.java` - Search for Spaces
+- `spaces/SpacesLookupDemo.java` - Look up Spaces by ID
+
+### Usage
+- `usage/UsageTweetsDemo.java` - Get API usage information
 
 ## Building and Running
 
+### Compile
+
 ```bash
-# Compile
+# Compile a single file
 javac -cp ".:lib/*" posts/SearchRecent.java
 
-# Run
-java -cp ".:lib/*" SearchRecent
+# Or compile all files
+find . -name "*.java" -exec javac -cp ".:lib/*" {} \;
+```
+
+### Run
+
+```bash
+# Run a single example
+java -cp ".:lib/*" posts.SearchRecent
+
+# Or with package structure
+java -cp ".:lib/*" posts/RecentSearchDemo
 ```
 
 ## More Information
