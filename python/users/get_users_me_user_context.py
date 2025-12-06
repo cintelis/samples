@@ -1,73 +1,65 @@
-from requests_oauthlib import OAuth1Session
+"""
+Authenticated User Lookup (Me) - X API v2
+=========================================
+Endpoint: GET https://api.x.com/2/users/me
+Docs: https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users-me
+
+Authentication: OAuth 2.0 (User Context)
+Required env vars: CLIENT_ID, CLIENT_SECRET
+"""
+
 import os
 import json
+from xdk import Client
+from xdk.oauth2_auth import OAuth2PKCEAuth
 
-# In your terminal please set your environment variables by running the following lines of code.
-# export 'CONSUMER_KEY'='<your_consumer_key>'
-# export 'CONSUMER_SECRET'='<your_consumer_secret>'
+# The code below sets the client ID and client secret from your environment variables
+# To set environment variables on macOS or Linux, run the export commands below from the terminal:
+# export CLIENT_ID='YOUR-CLIENT-ID'
+# export CLIENT_SECRET='YOUR-CLIENT-SECRET'
+client_id = os.environ.get("CLIENT_ID")
+client_secret = os.environ.get("CLIENT_SECRET")
 
-consumer_key = os.environ.get("CONSUMER_KEY")
-consumer_secret = os.environ.get("CONSUMER_SECRET")
+# Replace the following URL with your callback URL, which can be obtained from your App's auth settings.
+redirect_uri = "https://example.com"
 
-# User fields are adjustable, options include:
-# created_at, description, entities, id, location, name,
-# pinned_tweet_id, profile_image_url, protected,
-# public_metrics, url, username, verified, and withheld
-fields = "created_at,description"
-params = {"user.fields": fields}
+# Set the scopes
+scopes = ["tweet.read", "users.read", "offline.access"]
 
-# Get request token
-request_token_url = "https://api.x.com/oauth/request_token"
-oauth = OAuth1Session(consumer_key, client_secret=consumer_secret)
-
-try:
-    fetch_response = oauth.fetch_request_token(request_token_url)
-except ValueError:
-    print(
-        "There may have been an issue with the consumer_key or consumer_secret you entered."
+def main():
+    # Step 1: Create PKCE instance
+    auth = OAuth2PKCEAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+        scope=scopes
     )
-
-resource_owner_key = fetch_response.get("oauth_token")
-resource_owner_secret = fetch_response.get("oauth_token_secret")
-print("Got OAuth token: %s" % resource_owner_key)
-
-# # Get authorization
-base_authorization_url = "https://api.x.com/oauth/authorize"
-authorization_url = oauth.authorization_url(base_authorization_url)
-print("Please go here and authorize: %s" % authorization_url)
-verifier = input("Paste the PIN here: ")
-
-# Get the access token
-access_token_url = "https://api.x.com/oauth/access_token"
-oauth = OAuth1Session(
-    consumer_key,
-    client_secret=consumer_secret,
-    resource_owner_key=resource_owner_key,
-    resource_owner_secret=resource_owner_secret,
-    verifier=verifier,
-)
-oauth_tokens = oauth.fetch_access_token(access_token_url)
-
-access_token = oauth_tokens["oauth_token"]
-access_token_secret = oauth_tokens["oauth_token_secret"]
-
-# Make the request
-oauth = OAuth1Session(
-    consumer_key,
-    client_secret=consumer_secret,
-    resource_owner_key=access_token,
-    resource_owner_secret=access_token_secret,
-)
-
-response = oauth.get("https://api.x.com/2/users/me", params=params)
-
-if response.status_code != 200:
-    raise Exception(
-        "Request returned an error: {} {}".format(response.status_code, response.text)
+    
+    # Step 2: Get authorization URL
+    auth_url = auth.get_authorization_url()
+    print("Visit the following URL to authorize your App on behalf of your X handle in a browser:")
+    print(auth_url)
+    
+    # Step 3: Handle callback
+    callback_url = input("Paste the full callback URL here: ")
+    
+    # Step 4: Exchange code for tokens
+    tokens = auth.fetch_token(authorization_response=callback_url)
+    access_token = tokens["access_token"]
+    
+    # Step 5: Create client
+    client = Client(access_token=access_token)
+    
+    # Step 6: Get authenticated user info
+    # User fields are adjustable, options include:
+    # created_at, description, entities, id, location, name,
+    # pinned_tweet_id, profile_image_url, protected,
+    # public_metrics, url, username, verified, and withheld
+    response = client.users.get_me(
+        user_fields=["created_at", "description"]
     )
+    
+    print(json.dumps(response.data, indent=4, sort_keys=True))
 
-print("Response code: {}".format(response.status_code))
-
-json_response = response.json()
-
-print(json.dumps(json_response, indent=4, sort_keys=True))
+if __name__ == "__main__":
+    main()

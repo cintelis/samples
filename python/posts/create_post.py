@@ -1,80 +1,64 @@
 """
-Create Post - X API v2
-======================
+Create Tweet - X API v2
+=======================
 Endpoint: POST https://api.x.com/2/tweets
 Docs: https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
 
-Authentication: OAuth 1.0a (User Context)
-Required env vars: CONSUMER_KEY, CONSUMER_SECRET
+Authentication: OAuth 2.0 (User Context)
+Required env vars: CLIENT_ID, CLIENT_SECRET
 """
 
-from requests_oauthlib import OAuth1Session
 import os
 import json
+from xdk import Client
+from xdk.oauth2_auth import OAuth2PKCEAuth
 
-consumer_key = os.environ.get("CONSUMER_KEY")
-consumer_secret = os.environ.get("CONSUMER_SECRET")
+# The code below sets the client ID and client secret from your environment variables
+# To set environment variables on macOS or Linux, run the export commands below from the terminal:
+# export CLIENT_ID='YOUR-CLIENT-ID'
+# export CLIENT_SECRET='YOUR-CLIENT-SECRET'
+client_id = os.environ.get("CLIENT_ID")
+client_secret = os.environ.get("CLIENT_SECRET")
 
-# The text content of the post. You can also add parameters for polls, 
-# quote posts, reply settings, and more.
+# Replace the following URL with your callback URL, which can be obtained from your App's auth settings.
+redirect_uri = "https://example.com"
+
+# Set the scopes
+scopes = ["tweet.read", "tweet.write", "users.read", "offline.access"]
+
+# Be sure to replace the text with the text you wish to Tweet. 
+# You can also add parameters to post polls, quote Tweets, Tweet with reply settings, and Tweet to Super Followers in addition to other features.
 payload = {"text": "Hello world!"}
 
-# Get request token
-request_token_url = "https://api.x.com/oauth/request_token?oauth_callback=oob&x_auth_access_type=write"
-oauth = OAuth1Session(consumer_key, client_secret=consumer_secret)
-
-try:
-    fetch_response = oauth.fetch_request_token(request_token_url)
-except ValueError:
-    print(
-        "There may have been an issue with the consumer_key or consumer_secret you entered."
+def main():
+    # Step 1: Create PKCE instance
+    auth = OAuth2PKCEAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+        scope=scopes
     )
+    
+    # Step 2: Get authorization URL
+    auth_url = auth.get_authorization_url()
+    print("Visit the following URL to authorize your App on behalf of your X handle in a browser:")
+    print(auth_url)
+    
+    # Step 3: Handle callback
+    callback_url = input("Paste the full callback URL here: ")
+    
+    # Step 4: Exchange code for tokens
+    tokens = auth.fetch_token(authorization_response=callback_url)
+    access_token = tokens["access_token"]
+    
+    # Step 5: Create client
+    client = Client(access_token=access_token)
+    
+    # Step 6: Create the tweet
+    response = client.posts.create(body=payload)
+    
+    print("Response code: 201")
+    print(json.dumps(response.data, indent=4, sort_keys=True))
 
-resource_owner_key = fetch_response.get("oauth_token")
-resource_owner_secret = fetch_response.get("oauth_token_secret")
-print("Got OAuth token: %s" % resource_owner_key)
-
-# Get authorization
-base_authorization_url = "https://api.x.com/oauth/authorize"
-authorization_url = oauth.authorization_url(base_authorization_url)
-print("Please go here and authorize: %s" % authorization_url)
-verifier = input("Paste the PIN here: ")
-
-# Get the access token
-access_token_url = "https://api.x.com/oauth/access_token"
-oauth = OAuth1Session(
-    consumer_key,
-    client_secret=consumer_secret,
-    resource_owner_key=resource_owner_key,
-    resource_owner_secret=resource_owner_secret,
-    verifier=verifier,
-)
-oauth_tokens = oauth.fetch_access_token(access_token_url)
-
-access_token = oauth_tokens["oauth_token"]
-access_token_secret = oauth_tokens["oauth_token_secret"]
-
-# Make the request
-oauth = OAuth1Session(
-    consumer_key,
-    client_secret=consumer_secret,
-    resource_owner_key=access_token,
-    resource_owner_secret=access_token_secret,
-)
-
-# Making the request
-response = oauth.post(
-    "https://api.x.com/2/tweets",
-    json=payload,
-)
-
-if response.status_code != 201:
-    raise Exception(
-        "Request returned an error: {} {}".format(response.status_code, response.text)
-    )
-
-print("Response code: {}".format(response.status_code))
-
-# Saving the response as JSON
-json_response = response.json()
-print(json.dumps(json_response, indent=4, sort_keys=True))
+if __name__ == "__main__":
+    main()

@@ -8,45 +8,20 @@ Authentication: Bearer Token (App-only)
 Required env vars: BEARER_TOKEN
 """
 
-import requests
 import os
 import json
+from xdk import Client
 
 bearer_token = os.environ.get("BEARER_TOKEN")
+client = Client(bearer_token=bearer_token)
 
-
-def create_url():
-    return "https://api.x.com/2/compliance/jobs"
-
-
-def get_params():
-    # Type can be "tweets" or "users"
-    return {"type": "tweets"}
-
-
-def bearer_oauth(r):
-    """
-    Method required by bearer token authentication.
-    """
-    r.headers["Authorization"] = f"Bearer {bearer_token}"
-    r.headers["User-Agent"] = "v2ComplianceJobsPython"
-    return r
-
-
-def connect_to_endpoint(url, params):
-    response = requests.get(url, auth=bearer_oauth, params=params)
-    print(response.status_code)
-    if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
-    return response.json()
-
+# Type can be "tweets" or "users"
+job_type = "tweets"
 
 def main():
-    url = create_url()
-    params = get_params()
-    json_response = connect_to_endpoint(url, params)
-    print(json.dumps(json_response, indent=4, sort_keys=True))
-
+    response = client.compliance.get_jobs(type=job_type)
+    
+    print(json.dumps(response.data, indent=4, sort_keys=True))
 
 if __name__ == "__main__":
     main()

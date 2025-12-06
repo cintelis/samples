@@ -1,40 +1,33 @@
-import requests
+"""
+Search Spaces - X API v2
+========================
+Endpoint: GET https://api.x.com/2/spaces/search
+Docs: https://developer.x.com/en/docs/twitter-api/spaces/search/api-reference/get-spaces-search
+
+Authentication: Bearer Token (App-only) or OAuth (User Context)
+Required env vars: BEARER_TOKEN
+"""
+
 import os
 import json
+from xdk import Client
 
-# To set your environment variables in your terminal run the following line:
-# export 'BEARER_TOKEN'='<your_bearer_token>'
 bearer_token = os.environ.get("BEARER_TOKEN")
+client = Client(bearer_token=bearer_token)
 
-search_url = "https://api.x.com/2/spaces/search"
-
-search_term = 'NBA' # Replace this value with your search term
-
-# Optional params: host_ids,conversation_controls,created_at,creator_id,id,invited_user_ids,is_ticketed,lang,media_key,participants,scheduled_start,speaker_ids,started_at,state,title,updated_at
-query_params = {'query': search_term, 'space.fields': 'title,created_at', 'expansions': 'creator_id'}
-
-
-def create_headers(bearer_token):
-    headers = {
-        "Authorization": "Bearer {}".format(bearer_token),
-        "User-Agent": "v2SpacesSearchPython"
-    }
-    return headers
-
-
-def connect_to_endpoint(url, headers, params):
-    response = requests.request("GET", search_url, headers=headers, params=params)
-    print(response.status_code)
-    if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
-    return response.json()
-
+# Replace this value with your search term
+search_term = 'NBA'
 
 def main():
-    headers = create_headers(bearer_token)
-    json_response = connect_to_endpoint(search_url, headers, query_params)
-    print(json.dumps(json_response, indent=4, sort_keys=True))
-
+    # Optional params: host_ids, conversation_controls, created_at, creator_id, id, invited_user_ids,
+    # is_ticketed, lang, media_key, participants, scheduled_start, speaker_ids, started_at, state, title, updated_at
+    response = client.spaces.search(
+        query=search_term,
+        space_fields=["title", "created_at"],
+        expansions=["creator_id"]
+    )
+    
+    print(json.dumps(response.data, indent=4, sort_keys=True))
 
 if __name__ == "__main__":
     main()
