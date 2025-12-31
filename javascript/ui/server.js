@@ -155,19 +155,23 @@ app.post('/api/trends', async (req, res) => {
   }
 });
 
-app.post('/api/search/royal-commission', async (_req, res) => {
+app.post('/api/search/royal-commission', async (req, res) => {
   try {
     const client = await getClient();
-    const query = 'Royal Commission -is:retweet';
+    const { query = 'Royal Commission -is:retweet', limit = 10 } = req.body || {};
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'query is required' });
+    }
+    const maxResults = Math.min(Math.max(Number(limit) || 10, 10), 100);
     const apiRes = await client.posts.searchRecent(query, {
-      maxResults: 10,
+      maxResults,
       tweetFields: ['author_id', 'created_at', 'public_metrics'],
       userFields: ['username', 'name'],
       expansions: ['author_id']
     });
 
     const users = new Map((apiRes.includes?.users || []).map((u) => [u.id, u]));
-    const posts = (apiRes.data || []).map((p) => {
+    const posts = (apiRes.data || []).slice(0, maxResults).map((p) => {
       const author = users.get(p.author_id) || {};
       return {
         id: p.id,

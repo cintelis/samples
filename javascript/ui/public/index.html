@@ -59,8 +59,11 @@
   </form>
 
   <form id="royal-form" style="margin-top: 16px;">
-    <label>Quick search: “Royal Commission -is:retweet” (max 10)</label>
-    <button type="submit">Run</button>
+    <label for="royal-query">Quick search (select a trend first)</label>
+    <input id="royal-query" type="text" value="Royal Commission -is:retweet" disabled>
+    <label for="royal-limit" style="margin-top:8px; display:block;">Max results (API min 10)</label>
+    <input id="royal-limit" type="number" min="10" max="100" value="10" disabled>
+    <button id="royal-submit" type="submit" disabled>Run</button>
   </form>
 
   <div class="status" id="status"></div>
@@ -114,6 +117,10 @@
     const lookupForm = document.getElementById('lookup-form');
     const trendsForm = document.getElementById('trends-form');
     const royalForm = document.getElementById('royal-form');
+    const royalQuery = document.getElementById('royal-query');
+    const royalLimit = document.getElementById('royal-limit');
+    const royalSubmit = document.getElementById('royal-submit');
+    let selectedTrend = null;
 
     function extractId(input) {
       const trimmed = (input || '').trim();
@@ -188,7 +195,7 @@
           const volume = volumeVal ? ` · Volume: ${volumeVal}` : '';
           const name = t.name || t.trend_name || '(no name)';
           return `
-            <div class="card">
+            <div class="card trend-card" data-trend="${encodeURIComponent(name)}">
               <div class="meta">#${idx + 1}${volume}</div>
               <div class="text">
                 <strong>${name}</strong><br/>
@@ -202,13 +209,35 @@
       }
     });
 
+    resultsEl.addEventListener('click', (e) => {
+      const card = e.target.closest('.trend-card');
+      if (!card) return;
+      const decoded = decodeURIComponent(card.getAttribute('data-trend') || '');
+      selectedTrend = decoded;
+      royalQuery.value = `${decoded} -is:retweet`.trim();
+      royalQuery.disabled = false;
+      royalLimit.disabled = false;
+      royalSubmit.disabled = false;
+      statusEl.textContent = `Selected trend: ${decoded}. Quick search enabled.`;
+    });
+
     royalForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.textContent = 'Searching for “Royal Commission -is:retweet”...';
+      if (!selectedTrend) {
+        statusEl.textContent = 'Select a trend from the list first.';
+        return;
+      }
+      const query = royalQuery.value.trim() || `${selectedTrend} -is:retweet`;
+      const limit = parseInt(royalLimit.value, 10) || 10;
+      statusEl.textContent = `Searching for “${query}”...`;
       resultsEl.innerHTML = '';
 
       try {
-        const res = await fetch('/api/search/royal-commission', { method: 'POST' });
+        const res = await fetch('/api/search/royal-commission', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit })
+        });
         const json = await res.json();
         if (!res.ok) {
           statusEl.textContent = json.error || 'Search failed';
