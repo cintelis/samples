@@ -155,6 +155,43 @@ app.post('/api/trends', async (req, res) => {
   }
 });
 
+app.post('/api/search/royal-commission', async (_req, res) => {
+  try {
+    const client = await getClient();
+    const query = 'Royal Commission -is:retweet';
+    const apiRes = await client.posts.searchRecent(query, {
+      maxResults: 10,
+      tweetFields: ['author_id', 'created_at', 'public_metrics'],
+      userFields: ['username', 'name'],
+      expansions: ['author_id']
+    });
+
+    const users = new Map((apiRes.includes?.users || []).map((u) => [u.id, u]));
+    const posts = (apiRes.data || []).map((p) => {
+      const author = users.get(p.author_id) || {};
+      return {
+        id: p.id,
+        text: p.text,
+        created_at: p.created_at,
+        author: {
+          id: author.id || p.author_id,
+          username: author.username || '',
+          name: author.name || ''
+        },
+        public_metrics: p.public_metrics || {}
+      };
+    });
+
+    return res.json({ data: posts, meta: apiRes.meta || {} });
+  } catch (err) {
+    const status = err.status || 500;
+    const message = mapErrorStatus(status);
+    const details = err.data || err.message;
+    console.error('royal-commission search error', err);
+    return res.status(status).json({ error: message, details });
+  }
+});
+
 app.listen(port, () => {
   console.log(`search-recent UI running at http://localhost:${port}`);
 });

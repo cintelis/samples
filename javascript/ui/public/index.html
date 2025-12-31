@@ -58,6 +58,11 @@
     <button type="submit">Get Trends</button>
   </form>
 
+  <form id="royal-form" style="margin-top: 16px;">
+    <label>Quick search: “Royal Commission -is:retweet” (max 10)</label>
+    <button type="submit">Run</button>
+  </form>
+
   <div class="status" id="status"></div>
   <div class="results" id="results"></div>
 
@@ -108,6 +113,7 @@
 
     const lookupForm = document.getElementById('lookup-form');
     const trendsForm = document.getElementById('trends-form');
+    const royalForm = document.getElementById('royal-form');
 
     function extractId(input) {
       const trimmed = (input || '').trim();
@@ -188,6 +194,34 @@
                 <strong>${name}</strong><br/>
                 <a href="${displayUrl}" target="_blank" rel="noopener noreferrer">${displayUrl}</a>
               </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
+
+    royalForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Searching for “Royal Commission -is:retweet”...';
+      resultsEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/search/royal-commission', { method: 'POST' });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Search failed';
+          return;
+        }
+        statusEl.textContent = `Found ${json.data.length} posts`;
+        resultsEl.innerHTML = json.data.map(post => {
+          const url = `https://x.com/i/web/status/${post.id}`;
+          const author = post.author?.username || post.author?.name || post.author?.id || 'Unknown';
+          return `
+            <div class="card">
+              <div class="meta">${author} · ${new Date(post.created_at).toLocaleString()} · <a href="${url}" target="_blank" rel="noopener noreferrer">Open</a></div>
+              <div class="text">${(post.text || '').replace(/</g, '&lt;')}</div>
             </div>
           `;
         }).join('');
