@@ -37,6 +37,10 @@ function mapErrorStatus(status) {
   return 'Server error';
 }
 
+async function getClient() {
+  return new Client({ bearerToken: getBearerToken() });
+}
+
 app.post('/api/search', async (req, res) => {
   const { query, limit = 10 } = req.body || {};
   if (!query || typeof query !== 'string') {
@@ -44,7 +48,7 @@ app.post('/api/search', async (req, res) => {
   }
 
   try {
-    const client = new Client({ bearerToken: getBearerToken() });
+    const client = await getClient();
     const maxResults = Math.min(Math.max(limit || 10, 10), 100); // API min 10, max 100
 
     const apiRes = await client.posts.searchRecent(query, {
@@ -76,6 +80,49 @@ app.post('/api/search', async (req, res) => {
     const message = mapErrorStatus(status);
     const details = err.data || err.message;
     console.error('search_recent error', err);
+    return res.status(status).json({ error: message, details });
+  }
+});
+
+app.post('/api/lookup', async (req, res) => {
+  const { id } = req.body || {};
+  if (!id || typeof id !== 'string') {
+    return res.status(400).json({ error: 'id is required' });
+  }
+
+  try {
+    const client = await getClient();
+    const apiRes = await client.posts.findPostById(id, {
+      tweetFields: ['author_id', 'created_at', 'public_metrics'],
+      userFields: ['username', 'name', 'profile_image_url'],
+      expansions: ['author_id']
+    });
+
+    if (!apiRes?.data) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const users = new Map((apiRes.includes?.users || []).map((u) => [u.id, u]));
+    const p = apiRes.data;
+    const author = users.get(p.author_id) || {};
+    const post = {
+      id: p.id,
+      text: p.text,
+      created_at: p.created_at,
+      author: {
+        id: author.id || p.author_id,
+        username: author.username || '',
+        name: author.name || ''
+      },
+      public_metrics: p.public_metrics || {}
+    };
+
+    return res.json({ data: post, meta: apiRes.meta || {} });
+  } catch (err) {
+    const status = err.status || 500;
+    const message = mapErrorStatus(status);
+    const details = err.data || err.message;
+    console.error('lookup error', err);
     return res.status(status).json({ error: message, details });
   }
 });

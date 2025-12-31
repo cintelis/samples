@@ -33,6 +33,12 @@
     <button type="submit">Search</button>
   </form>
 
+  <form id="lookup-form" style="margin-top: 16px;">
+    <label for="post-id">Lookup by Post ID or URL</label>
+    <input id="post-id" name="post-id" type="text" placeholder="e.g. 2006108047609930069 or https://x.com/user/status/2006108047609930069">
+    <button type="submit">Lookup</button>
+  </form>
+
   <div class="status" id="status"></div>
   <div class="results" id="results"></div>
 
@@ -76,6 +82,52 @@
             </div>
           `;
         }).join('');
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
+
+    const lookupForm = document.getElementById('lookup-form');
+
+    function extractId(input) {
+      const trimmed = (input || '').trim();
+      if (!trimmed) return null;
+      const match = trimmed.match(/(\d{5,})$/);
+      return match ? match[1] : null;
+    }
+
+    lookupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const raw = document.getElementById('post-id').value;
+      const id = extractId(raw);
+      if (!id) {
+        statusEl.textContent = 'Enter a post ID or URL containing the ID.';
+        return;
+      }
+      statusEl.textContent = 'Looking up post...';
+      resultsEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/lookup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Lookup failed';
+          return;
+        }
+        const post = json.data;
+        const url = `https://x.com/i/web/status/${post.id}`;
+        const author = post.author?.username || post.author?.name || post.author?.id || 'Unknown';
+        statusEl.textContent = 'Post loaded';
+        resultsEl.innerHTML = `
+          <div class="card">
+            <div class="meta">${author} · ${new Date(post.created_at).toLocaleString()} · <a href="${url}" target="_blank" rel="noopener noreferrer">Open</a></div>
+            <div class="text">${(post.text || '').replace(/</g, '&lt;')}</div>
+          </div>
+        `;
       } catch (err) {
         statusEl.textContent = 'Error: ' + err.message;
       }
