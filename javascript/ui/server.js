@@ -139,10 +139,10 @@ app.post('/api/trends', async (req, res) => {
     const trends = Array.isArray(apiRes.data) ? apiRes.data : [];
 
     const items = trends.map((t) => ({
-      name: t.name,
+      name: t.name || t.trend_name || '',
       query: t.query,
       url: t.url,
-      tweet_volume: t.tweet_volume
+      tweet_volume: t.tweet_volume ?? t.tweet_count
     }));
 
     return res.json({ data: items, meta: apiRes.meta || {} });

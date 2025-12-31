@@ -165,12 +165,14 @@
         resultsEl.innerHTML = json.data.map((t, idx) => {
           const searchUrl = t.query ? `https://x.com/search?q=${encodeURIComponent(t.query)}` : '#';
           const displayUrl = t.url || searchUrl;
-          const volume = t.tweet_volume ? ` · Volume: ${t.tweet_volume}` : '';
+          const volumeVal = t.tweet_volume ?? t.tweet_count;
+          const volume = volumeVal ? ` · Volume: ${volumeVal}` : '';
+          const name = t.name || t.trend_name || '(no name)';
           return `
             <div class="card">
               <div class="meta">#${idx + 1}${volume}</div>
               <div class="text">
-                <strong>${t.name || '(no name)'}</strong><br/>
+                <strong>${name}</strong><br/>
                 <a href="${displayUrl}" target="_blank" rel="noopener noreferrer">${displayUrl}</a>
               </div>
             </div>
