@@ -2,6 +2,8 @@
 
 Minimal Node/Express + static HTML UI to run X API samples locally.
 
+![UI Screenshot](Search_Recent_UI.jpg)
+
 ### Prerequisites
 - Node 16.14+ installed
 - X API bearer token (app-only) set as `BEARER_TOKEN`
