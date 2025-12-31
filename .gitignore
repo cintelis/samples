@@ -18,8 +18,9 @@ yarn.lock
 ../package.json
 ../yarn.lock
 
-# Used by dotenv library to load environment variables.
-# .env
+# dotenv environment variables file
+.env
+.env.test
 
 # Ignore Byebug command history file.
 .byebug_history

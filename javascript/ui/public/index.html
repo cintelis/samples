@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Recent (X API)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background: #f5f8fa; color: #0f1419; }
+    h1 { margin-bottom: 8px; }
+    form { background: #fff; padding: 16px; border: 1px solid #e1e8ed; border-radius: 8px; max-width: 720px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+    label { display: block; margin: 12px 0 6px; font-weight: 600; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccd6dd; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+    button { margin-top: 14px; padding: 10px 16px; background: #1da1f2; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; }
+    button:disabled { background: #8ecdf7; cursor: not-allowed; }
+    .status { margin: 12px 0; font-size: 14px; }
+    .results { margin-top: 18px; display: grid; gap: 12px; max-width: 900px; }
+    .card { background: #fff; border: 1px solid #e1e8ed; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .meta { font-size: 13px; color: #536471; margin-bottom: 6px; }
+    .text { white-space: pre-wrap; font-size: 15px; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <h1>Search Recent (X API)</h1>
+  <p>Runs the <code>search_recent</code> sample locally via the backend. Set <code>BEARER_TOKEN</code> in your shell before starting.</p>
+
+  <form id="search-form">
+    <label for="query">Query</label>
+    <input id="query" name="query" type="text" value="from:x -is:retweet" required>
+
+    <label for="limit">Limit (1-100)</label>
+    <input id="limit" name="limit" type="number" min="1" max="100" value="10">
+
+    <button type="submit">Search</button>
+  </form>
+
+  <div class="status" id="status"></div>
+  <div class="results" id="results"></div>
+
+  <script>
+    const form = document.getElementById('search-form');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = document.getElementById('query').value.trim();
+      const limit = parseInt(document.getElementById('limit').value, 10) || 10;
+      if (!query) {
+        statusEl.textContent = 'Please enter a query.';
+        return;
+      }
+
+      statusEl.textContent = 'Searching...';
+      resultsEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Search failed';
+          return;
+        }
+
+        statusEl.textContent = `Found ${json.data.length} posts`;
+        resultsEl.innerHTML = json.data.map(post => {
+          const url = `https://x.com/i/web/status/${post.id}`;
+          const author = post.author?.username || post.author?.name || post.author?.id || 'Unknown';
+          return `
+            <div class="card">
+              <div class="meta">${author} · ${new Date(post.created_at).toLocaleString()} · <a href="${url}" target="_blank" rel="noopener noreferrer">Open</a></div>
+              <div class="text">${(post.text || '').replace(/</g, '&lt;')}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

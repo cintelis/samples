@@ -130,6 +130,18 @@ export CLIENT_SECRET='your_client_secret'
 node posts/search_recent.js
 ```
 
+## UI Demo (search_recent)
+
+A minimal browser UI that calls the `search_recent` sample through a local Node server.
+
+```bash
+cd ui
+npm install
+export BEARER_TOKEN='your_bearer_token'   # or set in PowerShell: $env:BEARER_TOKEN='...'
+npm start
+# Open http://localhost:4000
+```
+
 ## More Information
 
 - [X API Documentation](https://developer.x.com/en/docs/twitter-api)
