@@ -127,6 +127,34 @@ app.post('/api/lookup', async (req, res) => {
   }
 });
 
+app.post('/api/trends', async (req, res) => {
+  const { woeid } = req.body || {};
+  if (!woeid) {
+    return res.status(400).json({ error: 'woeid is required' });
+  }
+
+  try {
+    const client = await getClient();
+    const apiRes = await client.trends.getByWoeid(String(woeid));
+    const trends = Array.isArray(apiRes.data) ? apiRes.data : [];
+
+    const items = trends.map((t) => ({
+      name: t.name,
+      query: t.query,
+      url: t.url,
+      tweet_volume: t.tweet_volume
+    }));
+
+    return res.json({ data: items, meta: apiRes.meta || {} });
+  } catch (err) {
+    const status = err.status || 500;
+    const message = mapErrorStatus(status);
+    const details = err.data || err.message;
+    console.error('trends error', err);
+    return res.status(status).json({ error: message, details });
+  }
+});
+
 app.listen(port, () => {
   console.log(`search-recent UI running at http://localhost:${port}`);
 });

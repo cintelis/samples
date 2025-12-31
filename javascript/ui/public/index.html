@@ -39,6 +39,12 @@
     <button type="submit">Lookup</button>
   </form>
 
+  <form id="trends-form" style="margin-top: 16px;">
+    <label for="woeid">Trending by WOEID (location id)</label>
+    <input id="woeid" name="woeid" type="text" placeholder="e.g. 23424977 (United States)">
+    <button type="submit">Get Trends</button>
+  </form>
+
   <div class="status" id="status"></div>
   <div class="results" id="results"></div>
 
@@ -88,6 +94,7 @@
     });
 
     const lookupForm = document.getElementById('lookup-form');
+    const trendsForm = document.getElementById('trends-form');
 
     function extractId(input) {
       const trimmed = (input || '').trim();
@@ -128,6 +135,47 @@
             <div class="text">${(post.text || '').replace(/</g, '&lt;')}</div>
           </div>
         `;
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
+
+    trendsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const woeid = document.getElementById('woeid').value.trim();
+      if (!woeid) {
+        statusEl.textContent = 'Enter a WOEID.';
+        return;
+      }
+      statusEl.textContent = 'Loading trends...';
+      resultsEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/trends', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ woeid })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = json.error || 'Trend lookup failed';
+          return;
+        }
+        statusEl.textContent = `Found ${json.data.length} trends`;
+        resultsEl.innerHTML = json.data.map((t, idx) => {
+          const searchUrl = t.query ? `https://x.com/search?q=${encodeURIComponent(t.query)}` : '#';
+          const displayUrl = t.url || searchUrl;
+          const volume = t.tweet_volume ? ` · Volume: ${t.tweet_volume}` : '';
+          return `
+            <div class="card">
+              <div class="meta">#${idx + 1}${volume}</div>
+              <div class="text">
+                <strong>${t.name || '(no name)'}</strong><br/>
+                <a href="${displayUrl}" target="_blank" rel="noopener noreferrer">${displayUrl}</a>
+              </div>
+            </div>
+          `;
+        }).join('');
       } catch (err) {
         statusEl.textContent = 'Error: ' + err.message;
       }
