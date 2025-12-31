@@ -1,5 +1,18 @@
-require('dotenv').config();
 const path = require('path');
+const fs = require('fs');
+
+// Load env from ./ .env or repo root fallback
+const localEnv = path.join(__dirname, '.env');
+const rootEnv = path.join(__dirname, '..', '..', '.env');
+const dotenv = require('dotenv');
+
+if (fs.existsSync(localEnv)) {
+  dotenv.config({ path: localEnv });
+} else if (fs.existsSync(rootEnv)) {
+  dotenv.config({ path: rootEnv });
+} else {
+  dotenv.config(); // default
+}
 const express = require('express');
 const { Client } = require('@xdevplatform/xdk');
 
