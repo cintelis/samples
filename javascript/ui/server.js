@@ -92,29 +92,29 @@ app.post('/api/lookup', async (req, res) => {
 
   try {
     const client = await getClient();
-    const apiRes = await client.posts.findPostById(id, {
+    const apiRes = await client.posts.getById(id, {
       tweetFields: ['author_id', 'created_at', 'public_metrics'],
       userFields: ['username', 'name', 'profile_image_url'],
       expansions: ['author_id']
     });
 
-    if (!apiRes?.data) {
+    const tweet = Array.isArray(apiRes.data) ? apiRes.data[0] : apiRes.data;
+    if (!tweet) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
     const users = new Map((apiRes.includes?.users || []).map((u) => [u.id, u]));
-    const p = apiRes.data;
-    const author = users.get(p.author_id) || {};
+    const author = users.get(tweet.author_id) || {};
     const post = {
-      id: p.id,
-      text: p.text,
-      created_at: p.created_at,
+      id: tweet.id,
+      text: tweet.text,
+      created_at: tweet.created_at,
       author: {
-        id: author.id || p.author_id,
+        id: author.id || tweet.author_id,
         username: author.username || '',
         name: author.name || ''
       },
-      public_metrics: p.public_metrics || {}
+      public_metrics: tweet.public_metrics || {}
     };
 
     return res.json({ data: post, meta: apiRes.meta || {} });
